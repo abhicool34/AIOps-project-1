@@ -30,6 +30,3 @@ spec:
                             echo '{"level":"WARNING","message":"High memory usage","service":"demo-app"}
                             sleep 4
                         done
-            requests:
-                memory: "128Mi"
-                cpu: "250m"
