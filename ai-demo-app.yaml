@@ -1,0 +1,32 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+    name: AI-demo-app
+    labels:
+        app: AI-demo-app
+        namespace: dev-env
+spec: 
+    replicas: 1
+    selector:
+        matchLabels:
+            app: AI-demo-app
+    template:
+        metadata:
+            labels:
+                app: AI-demo-app
+        spec:
+            containers:
+                - name: AI-demo-app
+                  image: python:3.9-slim
+                  command: ["/bin/sh"]
+                  args:
+                    - "-c"
+                    - |
+                        while true; do
+                            echo "Hello, World!"
+                            sleep 5
+                            echo "ERROR: Database connection failed"
+                            sleep 3
+                            echo "Warning: High memory usage detected"
+                            sleep 4
+                        done
