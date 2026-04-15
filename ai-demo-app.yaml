@@ -1,22 +1,22 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-    name: AI-demo-app
+    name: ai-demo-app
     labels:
-        app: AI-demo-app
+        app: ai-demo-app
         namespace: dev-env
 spec: 
     replicas: 1
     selector:
         matchLabels:
-            app: AI-demo-app
+            app: ai-demo-app
     template:
         metadata:
             labels:
-                app: AI-demo-app
+                app: ai-demo-app
         spec:
             containers:
-                - name: AI-demo-app
+                - name: ai-demo-app
                   image: python:3.9-slim
                   command: ["/bin/sh"]
                   args:
