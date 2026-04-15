@@ -23,10 +23,13 @@ spec:
                     - "-c"
                     - |
                         while true; do
-                            echo "Hello, World!"
+                            echo '{"level":"INFO","message":"App running","service":"demo-app"}'
                             sleep 5
-                            echo "ERROR: Database connection failed"
+                            echo '{"level":"ERROR","message":"Database connection failed","service":"demo-app"}'
                             sleep 3
-                            echo "Warning: High memory usage detected"
+                            echo '{"level":"WARNING","message":"High memory usage","service":"demo-app"}
                             sleep 4
                         done
+            requests:
+                memory: "128Mi"
+                cpu: "250m"
