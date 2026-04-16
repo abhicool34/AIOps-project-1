@@ -29,12 +29,14 @@ resource "kubernetes_deployment" "ai_app" {
 
           args = [
             "-c",
-            <<EOF
+            <<-EOF
 while true; do
   echo '{"level":"INFO","message":"App running","service":"ai-demo-app"}'
   sleep 2
   echo '{"level":"ERROR","message":"Database connection failed","service":"ai-demo-app"}'
   sleep 3
+  echo '{"level":"WARNING","message":"High memory usage","service":"ai-demo-app"}'
+  sleep 4
 done
 EOF
           ]
