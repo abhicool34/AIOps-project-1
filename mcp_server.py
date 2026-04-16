@@ -1,6 +1,7 @@
 from fastapi import FastAPI
 from elasticsearch import Elasticsearch
 from datetime import datetime, timedelta
+import requests
 
 app = FastAPI()
 
@@ -140,3 +141,89 @@ def rca():
         return {"root_cause": "High memory usage"}
 
     return {"root_cause": "Unknown"}
+
+@app.get("/ai/analyze-advanced")
+def analyze_advanced():
+    res = es.search(index="logstash-*", size=200)
+
+    logs = [hit["_source"] for hit in res["hits"]["hits"]]
+
+    error_logs = []
+    slow_logs = []
+
+    for log in logs:
+        message = log.get("log", "").lower()
+
+        if "error" in message or "500" in message:
+            error_logs.append(message)
+
+        if "timeout" in message or "slow" in message:
+            slow_logs.append(message)
+
+    return {
+        "total_logs": len(logs),
+        "error_count": len(error_logs),
+        "slow_issues": len(slow_logs),
+        "insights": [
+            "High 5xx errors detected" if len(error_logs) > 5 else "Healthy",
+            "Performance degradation" if len(slow_logs) > 3 else "Normal"
+        ]
+    }
+
+@app.get("/ai/anomaly")
+def anomaly():
+    res = es.search(index="logstash-*", size=500)
+
+    logs = res["hits"]["hits"]
+
+    error_count = sum(1 for l in logs if "error" in str(l).lower())
+
+    if error_count > 20:
+        return {"anomaly": "Spike in errors 🚨"}
+
+    return {"anomaly": "Normal"}
+
+@app.get("/ai/rca-advanced")
+def rca_advanced():
+    res = es.search(index="logstash-*", size=200)
+
+    logs = [hit["_source"].get("log", "") for hit in res["hits"]["hits"]]
+
+    causes = {}
+
+    for log in logs:
+        if "connection refused" in log.lower():
+            causes["network"] = causes.get("network", 0) + 1
+
+        if "timeout" in log.lower():
+            causes["timeout"] = causes.get("timeout", 0) + 1
+
+        if "memory" in log.lower():
+            causes["memory"] = causes.get("memory", 0) + 1
+
+    return {"root_causes": causes}
+
+def ask_ai(prompt):
+    response = requests.post(
+        "http://localhost:11434/api/generate",
+        json={"model": "llama3", "prompt": prompt}
+    )
+    return response.json()["response"]
+
+@app.get("/ai/llm-analysis")
+def llm_analysis():
+    res = es.search(index="logstash-*", size=50)
+
+    logs = [hit["_source"].get("log", "") for hit in res["hits"]["hits"]]
+
+    prompt = f"""
+    Analyze these logs and:
+    - detect issues
+    - find root cause
+    - suggest fixes
+
+    Logs:
+    {logs}
+    """
+
+    return {"analysis": ask_ai(prompt)}
